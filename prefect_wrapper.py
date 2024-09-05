@@ -2,7 +2,7 @@ from feature_implementations.utils  import (load_cfg, load_ref_cfg,
                                             load_cfg_exp, proc_dpv, 
                                             dpv_phasing, fit_gauss, 
                                             gaussian)
-from feature_implementations.potentialstat_exposed import run_CV, run_CDPV
+from feature_implementations.exposed_feature import run_CV, run_CDPV
 from prefect import task, flow
 from e_complex_robot import AutoComplex
 import numpy as np
@@ -32,7 +32,6 @@ def RunExp(Jobfile):
     np.savetxt(f"{name}_CV_poten_2.csv", CV_1, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
     Rinse()
     print("RunExperiment Completed")
-
 
 
 @flow(logs_print=True)
