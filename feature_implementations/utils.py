@@ -4,17 +4,6 @@ from typing import NamedTuple
 from pathlib import Path
 from .potentiostat import Potentiostat
 import time
-from ..generated.potenserver import (
-    PotenServerBase,
-    PrepareCompund_IntermediateResponses,
-    PrepareCompund_Responses,
-    Rinse_IntermediateResponses,
-    Rinse_Responses,
-    RunExp_IntermediateResponses,
-    RunExp_Responses,
-    RunReference_IntermediateResponses,
-    RunReference_Responses,
-)
 import asyncio
 from io import StringIO
 import subprocess
@@ -162,93 +151,6 @@ def get_csv_string2(ar):
     np.savetxt(stream, ar, delimiter=',')
     stream.seek(0)
     return stream.read()
-
-
-
-def log(instance, message, payload, ref):
-    if ref:
-        instance.send_intermediate_response(RunReference_IntermediateResponses(message, payload.encode("utf-8")))
-    else:
-        instance.send_intermediate_response(RunExp_IntermediateResponses(message, payload.encode("utf-8")))
-
-
-def run_CV(cfg):
-
-    filename1 = str(uuid1())+"poten_1_cv.csv"
-    cv_process_1 = subprocess.Popen(['python', '/home/poten/AsyncEchem/sila2_poten/feature_implementations/cv.py',
-    str(cfg.CV.v_min),
-    str(cfg.CV.v_max),
-    str(cfg.CV.cycles), 
-    str(cfg.CV.mV_s),
-    str(cfg.CV.step_hz),
-    str(cfg.CV.start_V),
-    str(cfg.CV.last_V),
-    str("/dev/poten_1"),
-    str(filename1),
-    ]
-    )
-
-    filename2 = str(uuid1())+"poten_2_cv.csv"
-    cv_process_2 = subprocess.Popen(['python', '/home/poten/AsyncEchem/sila2_poten/feature_implementations/cv.py',
-    str(cfg.CV.v_min),
-    str(cfg.CV.v_max),
-    str(cfg.CV.cycles), 
-    str(cfg.CV.mV_s),
-    str(cfg.CV.step_hz),
-    str(cfg.CV.start_V),
-    str(cfg.CV.last_V),
-    str("/dev/poten_2"),
-    str(filename2),
-    ]
-    )
-    
-    print("waiting")
-    cv_process_2.wait()
-
-    return filename1, filename2
-
-
-def run_DPV(cfg):
-
-    filename1 = "DPV"+str(uuid1())+"poten_1.csv"
-    dpv_process_0 = subprocess.Popen(['python',
-    '/home/poten/AsyncEchem/sila2_poten/feature_implementations/dpv.py',
-    str(cfg.DPV.min_V),
-    str(cfg.DPV.pulse_V),
-    str(cfg.DPV.step_V),
-    str(cfg.DPV.max_V),
-    str(cfg.DPV.potential_hold_ms),
-    str(cfg.DPV.pulse_hold_ms),
-    str(cfg.DPV.voltage_hold_s),
-    "/dev/poten_1",
-    str(1),
-    str(True),
-    str(filename1),
-    ])
-
-    # filename2 = str(uuid1())+".csv"
-    filename2 =  "DPV"+str(uuid1())+"poten_2.csv"
-    dpv_process_1 = subprocess.Popen(['python',
-    '/home/poten/AsyncEchem/sila2_poten/feature_implementations/dpv.py',
-    str(cfg.DPV.min_V),
-    str(cfg.DPV.pulse_V),
-    str(cfg.DPV.step_V),
-    str(cfg.DPV.max_V),
-    str(cfg.DPV.potential_hold_ms),
-    str(cfg.DPV.pulse_hold_ms),
-    str(cfg.DPV.voltage_hold_s),
-    "/dev/poten_2",
-    str(1),
-    str(True),
-    str(filename2),
-    ])
-    
-    dpv_process_1.wait()
-
-    print("success dpv")
-
-    return filename1, filename2
-
 
 from pathlib import Path
 import numpy as np
