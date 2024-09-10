@@ -6,7 +6,7 @@ def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     with open(Jobfile, "r") as Jobfile:
         jobdict = json.load(Jobfile)  # Use json.load() instead of json.loads() for reading from a file
     name = jobdict["name"]
-    cfg = load_CV_cfg(jobdict)
+    cfg = load_CV_cfg(jobdict["CV"])#TODO: need kley for others 
     CV_0: np.ndarray = run_CV(cfg, serial_port=serial_port)
     time.sleep(2)
     np.savetxt(f"{name}_CV_poten_1.csv", CV_0, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
