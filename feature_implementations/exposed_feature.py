@@ -11,7 +11,7 @@ def init_poten(serial_port: str,
     print("Connected to potentiostat serial_port: {}, baudrate: {}, device_ID: {}".format(serial_port, baudrate, device_ID))
     return POTEN
 
-@flow(log_prints=True)
+@flow#(log_prints=True)
 def perform_CV(POTEN: Potentiostat,
                v_min: float,
                v_max: float,
