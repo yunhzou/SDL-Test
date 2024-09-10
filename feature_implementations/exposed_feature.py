@@ -77,7 +77,7 @@ def run_CV(cfg,
     POTEN_port = init_poten(serial_port=serial_port,
                                baudrate=115200, 
                                device_ID=2)
-    
+    print("intializing CV completed test 0910")
     cv_result = perform_CV(POTEN_port, 
                            cfg.v_min, 
                            cfg.v_max, 
