@@ -541,10 +541,11 @@ class Potentiostat():
             if last_V is None:
                 last_V = ocp
 
+        print("ocp reading down")
         self.write_current_hold_stop()
         #if SwitchState == False:
         self.write_switch(True)
-
+        print("switched on")
         V_s = mV_s / 1000
         step_V = V_s / step_hz
 
@@ -572,7 +573,7 @@ class Potentiostat():
             cv = np.append(cv,p3) #max to min
         if r4:
             cv = np.append(cv,p4) #min to last
-
+        print('starting cv')
         rtn = self.write_voltage_batch(voltages = cv,delay = int(np.round(1000/step_hz)))
         num_points = rtn.shape[0]
         cycle_points = num_points // cycles
