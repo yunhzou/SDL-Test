@@ -79,13 +79,13 @@ def run_CV(cfg,
                                device_ID=2)
     
     cv_result = perform_CV(POTEN_port, 
-                           cfg.CV.v_min, 
-                           cfg.CV.v_max, 
-                           cfg.CV.cycles, 
-                           cfg.CV.mV_s, 
-                           cfg.CV.step_hz, 
-                           cfg.CV.start_V,
-                           cfg.CV.last_V)
+                           cfg.v_min, 
+                           cfg.v_max, 
+                           cfg.cycles, 
+                           cfg.mV_s, 
+                           cfg.step_hz, 
+                           cfg.start_V,
+                           cfg.last_V)
     terminate_poten(POTEN_port)
     return cv_result
 
