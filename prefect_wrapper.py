@@ -1,4 +1,4 @@
-from feature_implementations.utils  import (load_cfg, load_ref_cfg, 
+from feature_implementations.utils  import (load_cfg, load_ref_cfg, load_CV_cfg, load_DPV_cfg,
                                             load_cfg_exp, proc_dpv, 
                                             dpv_phasing, fit_gauss, 
                                             gaussian)
