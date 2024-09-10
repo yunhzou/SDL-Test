@@ -2,7 +2,7 @@ from prefect_wrapper import *
 from prefect import flow, serve
 
 @flow(log_prints=True)
-def single_CV(Jobfile:str,serial_port="/dev/poten_1"):
+def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     jobdict = json.loads(Jobfile)
     name = jobdict["name"]
     cfg = load_cfg(jobdict)
@@ -12,7 +12,7 @@ def single_CV(Jobfile:str,serial_port="/dev/poten_1"):
     print("RunExperiment CV Completed on port ",serial_port)
 
 @flow(log_prints=True)
-def single_DPV(Jobfile:str,serial_port="/dev/poten_1"):
+def single_DPV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     jobdict = json.loads(Jobfile)
     name = jobdict["name"]
     cfg = load_cfg(jobdict)
