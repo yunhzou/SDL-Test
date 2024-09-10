@@ -75,17 +75,12 @@ def terminate_poten(POTEN: Potentiostat):
     print("Disconnected from potentiostat")
 
 @flow(log_prints=True)
-def test_test():
-    print("test test")
-
-@flow(log_prints=True)
 def run_CV(cfg,
            serial_port:str = "/dev/poten_1"):
     POTEN_port = init_poten(serial_port=serial_port,
                                baudrate=115200, 
                                device_ID=2)
-    print("intializing CV completed test 0910")
-    test_test()
+    print(POTEN_port)
     cv_result = perform_CV(POTEN_port, 
                            cfg.v_min, 
                            cfg.v_max, 
