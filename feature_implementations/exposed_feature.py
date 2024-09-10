@@ -92,7 +92,7 @@ def run_CV(cfg,
     terminate_poten(POTEN_port)
     return cv_result
 
-#@flow(log_prints=True)
+@flow(log_prints=True)
 def run_CDPV(cfg,
              serial_port:str = "/dev/poten_1"):
     POTEN_port = init_poten(serial_port=serial_port,
