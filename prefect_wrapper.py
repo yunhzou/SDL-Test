@@ -13,7 +13,8 @@ import time
 @flow(log_prints=True)
 def RunExp(Jobfile):
     autocomplex_client = create_autocomplex_client()
-    jobdict = json.loads(Jobfile)
+    with open("jobfile.json", "r") as Jobfile:
+        jobdict = json.loads(Jobfile)  # Use json.load() instead of json.loads() for reading from a file
     name = jobdict["name"]
     cfg = load_cfg(jobdict)
     run_complexation(autocomplex_client, cfg)
@@ -45,7 +46,8 @@ def Rinse():
 @flow(log_prints=True)
 def RunReference(Jobfile):
     autocomplex_client = create_autocomplex_client()
-    jobdict = json.loads(Jobfile)
+    with open("jobfile.json", "r") as Jobfile:
+        jobdict = json.loads(Jobfile)  # Use json.load() instead of json.loads() for reading from a file
     name = jobdict["name"]
     cfg = load_ref_cfg(jobdict)
     run_complexation(autocomplex_client, cfg)
@@ -121,7 +123,8 @@ def process_dpv_reference(Jobfile: str, DPV_data: np.ndarray):
         Jobfile (str): _description_
         filename (str): _description_
     """
-    jobdict =json.loads(Jobfile)
+    with open("jobfile.json", "r") as Jobfile:
+        jobdict = json.loads(Jobfile)  # Use json.load() instead of json.loads() for reading from a file
     name = jobdict["name"]
     dpv = proc_dpv(DPV_data, decay_ms =500, pulse_ms = 50, pulse_from_end=4,decay_from_end=20)
     np.savetxt(f'references/{name}_poten2.csv', dpv[:, 0:5], delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d")

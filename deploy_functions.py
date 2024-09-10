@@ -3,7 +3,8 @@ from prefect import flow, serve
 
 @flow(log_prints=True)
 def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
-    jobdict = json.loads(Jobfile)
+    with open("jobfile.json", "r") as Jobfile:
+        jobdict = json.loads(Jobfile)  # Use json.load() instead of json.loads() for reading from a file
     name = jobdict["name"]
     cfg = load_cfg(jobdict)
     CV_0: np.ndarray = run_CV(cfg, serial_port=serial_port)
@@ -13,7 +14,8 @@ def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
 
 @flow(log_prints=True)
 def single_DPV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
-    jobdict = json.loads(Jobfile)
+    with open("jobfile.json", "r") as Jobfile:
+        jobdict = json.loads(Jobfile)  # Use json.load() instead of json.loads() for reading from a file
     name = jobdict["name"]
     cfg = load_cfg(jobdict)
     DPV_0: np.ndarray = run_CDPV(cfg, serial_port=serial_port)
@@ -43,14 +45,15 @@ def single_complexation(Jobfile:str):
 
 
 if __name__ == "__main__":
-    single_cv_deploy = single_CV.to_deployment(name="single_CV_test")
-    single_dpv_deploy = single_DPV.to_deployment(name="single_DPV_test")
-    single_clean_echem_deploy = single_clean_echem.to_deployment(name="single_clean_echem_test")
-    single_clean_rxn_deploy = single_clean_rxn.to_deployment(name="single_clean_rxn_test")
-    single_complexation_deploy = single_complexation.to_deployment(name="single_complexation_test")
-    serve(single_cv_deploy,
-          single_dpv_deploy,
-          single_clean_echem_deploy,
-          single_clean_rxn_deploy,
-          single_complexation_deploy)
-    
+    # single_cv_deploy = single_CV.to_deployment(name="single_CV_test")
+    # single_dpv_deploy = single_DPV.to_deployment(name="single_DPV_test")
+    # single_clean_echem_deploy = single_clean_echem.to_deployment(name="single_clean_echem_test")
+    # single_clean_rxn_deploy = single_clean_rxn.to_deployment(name="single_clean_rxn_test")
+    # single_complexation_deploy = single_complexation.to_deployment(name="single_complexation_test")
+    # serve(single_cv_deploy,
+    #       single_dpv_deploy,
+    #       single_clean_echem_deploy,
+    #       single_clean_rxn_deploy,
+    #       single_complexation_deploy)
+    import json
+    print(json.loads("jobfile.json"))
