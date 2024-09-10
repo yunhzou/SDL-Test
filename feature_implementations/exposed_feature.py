@@ -30,6 +30,7 @@ def perform_CV(POTEN: Potentiostat,
     except:
         last_V = None
 
+    print('parameters loaded')
     rtn = POTEN.perform_CV(
         float(v_min)
         , float(v_max)
