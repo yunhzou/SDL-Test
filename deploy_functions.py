@@ -4,7 +4,7 @@ from prefect import flow, serve
 @flow(log_prints=True)
 def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     with open(Jobfile, "r") as Jobfile:
-        jobdict = json.loads(Jobfile)  # Use json.load() instead of json.loads() for reading from a file
+        jobdict = json.load(Jobfile)  # Use json.load() instead of json.loads() for reading from a file
     name = jobdict["name"]
     cfg = load_cfg(jobdict)
     CV_0: np.ndarray = run_CV(cfg, serial_port=serial_port)
@@ -15,7 +15,7 @@ def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
 @flow(log_prints=True)
 def single_DPV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     with open(Jobfile, "r") as Jobfile:
-        jobdict = json.loads(Jobfile)  # Use json.load() instead of json.loads() for reading from a file
+        jobdict = json.load(Jobfile)  # Use json.load() instead of json.loads() for reading from a file
     name = jobdict["name"]
     cfg = load_cfg(jobdict)
     DPV_0: np.ndarray = run_CDPV(cfg, serial_port=serial_port)
