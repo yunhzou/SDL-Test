@@ -74,7 +74,7 @@ def terminate_poten(POTEN: Potentiostat):
     POTEN.disconnect()
     print("Disconnected from potentiostat")
 
-@flow(log_prints=True)
+@task#(log_prints=True)
 def run_CV(cfg,
            serial_port:str = "/dev/poten_1"):
     POTEN_port = init_poten(serial_port=serial_port,
