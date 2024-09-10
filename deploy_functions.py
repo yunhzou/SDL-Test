@@ -1,7 +1,7 @@
 from prefect_wrapper import *
 from prefect import flow, serve
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def single_CV(Jobfile:str,serial_port="/dev/poten_1"):
     jobdict = json.loads(Jobfile)
     name = jobdict["name"]
@@ -11,7 +11,7 @@ def single_CV(Jobfile:str,serial_port="/dev/poten_1"):
     np.savetxt(f"{name}_CV_poten_1.csv", CV_0, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
     print("RunExperiment CV Completed on port ",serial_port)
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def single_DPV(Jobfile:str,serial_port="/dev/poten_1"):
     jobdict = json.loads(Jobfile)
     name = jobdict["name"]
@@ -22,18 +22,18 @@ def single_DPV(Jobfile:str,serial_port="/dev/poten_1"):
     print("RunExperiment DPV Completed on port ",serial_port)
 
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def single_clean_echem(chamber_id:int = 0):
     autocomplex_client = create_autocomplex_client()
     clean_echem(autocomplex_client, chamber_id)
 
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def single_clean_rxn():
     autocomplex_client = create_autocomplex_client()
     clean_rxn(autocomplex_client)
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def single_complexation(Jobfile:str):
     autocomplex_client = create_autocomplex_client()
     jobdict = json.loads(Jobfile)
