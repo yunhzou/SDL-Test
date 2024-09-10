@@ -68,7 +68,7 @@ def perform_CDPV(POTEN: Potentiostat,
     return rtn
 
 
-@flow(log_prints=True)
+#@flow(log_prints=True)
 def terminate_poten(POTEN: Potentiostat):
     POTEN.write_switch(False)
     POTEN.disconnect()
@@ -77,7 +77,6 @@ def terminate_poten(POTEN: Potentiostat):
 @flow(log_prints=True)
 def run_CV(cfg,
            serial_port:str = "/dev/poten_1"):
-    print(cfg)
     POTEN_port = init_poten(serial_port=serial_port,
                                baudrate=115200, 
                                device_ID=2)
@@ -93,7 +92,7 @@ def run_CV(cfg,
     terminate_poten(POTEN_port)
     return cv_result
 
-@flow(log_prints=True)
+#@flow(log_prints=True)
 def run_CDPV(cfg,
              serial_port:str = "/dev/poten_1"):
     POTEN_port = init_poten(serial_port=serial_port,
