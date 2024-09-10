@@ -20,6 +20,7 @@ def perform_CV(POTEN: Potentiostat,
                step_hz: int,
                start_V: float,
                last_V: float,)->np.ndarray:
+    print('loading parameters')
     try:
         start_V = float(start_V)
     except:
