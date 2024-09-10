@@ -581,6 +581,7 @@ class Potentiostat():
         cycle_nums = np.zeros(num_points)
         for i in range(0, cycles):
             cycle_nums[i * cycle_points: (i + 1) * cycle_points] = np.full(cycle_points, i)
+            print("finished cycle: ", i)
         return np.column_stack((time_stamps, rtn[:, 1], rtn[:, 0], cycle_nums, np.zeros(num_points), cv))
 
     
