@@ -41,6 +41,7 @@ def perform_CV(POTEN: Potentiostat,
         , start_V
         , last_V
     )
+    
     print("CV performed with parameters v_min: {}, v_max: {}, cycles: {}, mV_s: {}, step_hz: {}, start_V: {}, last_V: {}".format(v_min, v_max, cycles, mV_s, step_hz, start_V, last_V))
     return rtn
 

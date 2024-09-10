@@ -532,7 +532,7 @@ class Potentiostat():
         Returns:
             _type_: 2 columns, column 0: I (A) | column 1: V
         """
-
+        print(min_V, max_V, cycles,mV_s, step_hz, start_V, last_V)
         #if start_V and/or last_V is None, start/end with OCP
         if (start_V is None) or (last_V is None):
             ocp = self.read_ocp()
