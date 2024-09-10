@@ -2,7 +2,7 @@ from feature_implementations.potentiostat import Potentiostat
 from prefect import task, flow
 import numpy as np
 
-@flow(log_prints=True)
+#@flow(log_prints=True)
 def init_poten(serial_port: str,
                baudrate: int,
                device_ID: int):
@@ -11,7 +11,7 @@ def init_poten(serial_port: str,
     print("Connected to potentiostat serial_port: {}, baudrate: {}, device_ID: {}".format(serial_port, baudrate, device_ID))
     return POTEN
 
-@flow(log_prints=True)
+#@flow(log_prints=True)
 def perform_CV(POTEN: Potentiostat,
                v_min: float,
                v_max: float,
@@ -77,6 +77,7 @@ def terminate_poten(POTEN: Potentiostat):
 #@flow(log_prints=True)
 def run_CV(cfg,
            serial_port:str = "/dev/poten_1"):
+    print(cfg)
     POTEN_port = init_poten(serial_port=serial_port,
                                baudrate=115200, 
                                device_ID=2)
