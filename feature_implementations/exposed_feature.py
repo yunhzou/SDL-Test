@@ -2,7 +2,7 @@ from feature_implementations.potentiostat import Potentiostat
 from prefect import task, flow
 import numpy as np
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def init_poten(serial_port: str,
                baudrate: int,
                device_ID: int):
@@ -11,7 +11,7 @@ def init_poten(serial_port: str,
     print("Connected to potentiostat serial_port: {}, baudrate: {}, device_ID: {}".format(serial_port, baudrate, device_ID))
     return POTEN
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def perform_CV(POTEN: Potentiostat,
                v_min: float,
                v_max: float,
@@ -42,7 +42,7 @@ def perform_CV(POTEN: Potentiostat,
     print("CV performed with parameters v_min: {}, v_max: {}, cycles: {}, mV_s: {}, step_hz: {}, start_V: {}, last_V: {}".format(v_min, v_max, cycles, mV_s, step_hz, start_V, last_V))
     return rtn
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def perform_CDPV(POTEN: Potentiostat,
                  min_V: float,
                  pulse_V: float,
@@ -65,13 +65,13 @@ def perform_CDPV(POTEN: Potentiostat,
     return rtn
 
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def terminate_poten(POTEN: Potentiostat):
     POTEN.write_switch(False)
     POTEN.disconnect()
     print("Disconnected from potentiostat")
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def run_CV(cfg,
            serial_port:str = "/dev/poten_1"):
     POTEN_port = init_poten(serial_port=serial_port,
@@ -89,7 +89,7 @@ def run_CV(cfg,
     terminate_poten(POTEN_port)
     return cv_result
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def run_CDPV(cfg,
              serial_port:str = "/dev/poten_1"):
     POTEN_port = init_poten(serial_port=serial_port,

@@ -10,7 +10,7 @@ import json
 import time
 
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def RunExp(Jobfile):
     autocomplex_client = create_autocomplex_client()
     jobdict = json.loads(Jobfile)
@@ -34,7 +34,7 @@ def RunExp(Jobfile):
     print("RunExperiment Completed")
 
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def Rinse():
     autocomplex_client = create_autocomplex_client()
     clean_echem(autocomplex_client, 0)
@@ -42,7 +42,7 @@ def Rinse():
     clean_rxn(autocomplex_client)
     print("Rinse Completed")
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def RunReference(Jobfile):
     autocomplex_client = create_autocomplex_client()
     jobdict = json.loads(Jobfile)
@@ -67,7 +67,7 @@ def RunReference(Jobfile):
     Rinse()
     print("RunReference Completed")
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def create_autocomplex_client():
     print("Creating AutoComplex client")
     client =  AutoComplex()
@@ -75,7 +75,7 @@ def create_autocomplex_client():
     return client
 
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def run_complexation(client: AutoComplex, cfg):
     print("Running complexation")
     client.run_complexation(
@@ -89,31 +89,31 @@ def run_complexation(client: AutoComplex, cfg):
         )
     print("Complexation finished")
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def rxn_to_echem(client, channel_ID:int):
     client.rxn_to_echem(channel_ID)
     print(f"Product transferred to electrochemical cell {channel_ID}")
 
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def clean_echem(client, channel_ID:int):
     print(f"Cleaning electrochemical cell {channel_ID}")
     client.clean_echem(channel_ID)
     print(f"Electrochemical cell {channel_ID} cleaned")
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def clean_rxn(client):
     print("Cleaning reaction vessel")
     client.clean_rxn()
     print("Reaction vessel cleaned")
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def ref_to_echem(client):
     print("Transferring reference to electrochemical cell")
     client.ref_to_echem()
     print("Reference transferred to electrochemical cell")
 
-@flow(logs_print=True)
+@flow(log_prints=True)
 def process_dpv_reference(Jobfile: str, DPV_data: np.ndarray):
     """Used after DPV measurments to process the data and save it as a reference
         from dpv.csv to fitcurv.csv
@@ -131,7 +131,3 @@ def process_dpv_reference(Jobfile: str, DPV_data: np.ndarray):
         f.write(f"{name}_poten_2:\t"+str(gau_opt)+"\n")
     fit_curv = gaussian(dpv_up[:, 1], gau_opt[0], gau_opt[1], gau_opt[2], gau_opt[3])
     np.savetxt(f"references/{name}_poten2_fitcurv.csv", fit_curv, delimiter=',')
-
-
-
-
