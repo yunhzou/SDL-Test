@@ -39,6 +39,7 @@ class DPV_Cfg(NamedTuple):
     pulse_hold_ms: int
     voltage_hold_s: float
     cycles: int
+    sample_hz: int
 
 class ExpCfg(NamedTuple):
     quantity_buffer:float
