@@ -16,7 +16,7 @@
     "pulse_V": 0.01,
     "step_V": 0.005,
     "max_V": 0.8,
-    "potential_hold_ms": 100,
+    "voltage_hold_s": 0.1,
     "pulse_hold_ms": 100,
     "sample_hz": 250,
     "cycles": 1

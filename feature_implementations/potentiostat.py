@@ -632,7 +632,7 @@ class Potentiostat():
         :param pulse_V:
         :param step_V:
         :param max_V:
-        :param potential_hold_ms:
+        :param voltage_hold_s:
         :param pulse_hold_ms:
         :param cycles:
         :param sample_hz:
