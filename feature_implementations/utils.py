@@ -66,12 +66,12 @@ def load_cfg_pot(
 def load_CV_cfg(
     dict_cfg: dict
 ) -> CV_Cfg:
-    return CV_Cfg(**dict_cfg["CV"])
+    return CV_Cfg(**dict_cfg)
 
 def load_DPV_cfg(
     dict_cfg: dict
 ) -> CV_Cfg:
-    return DPV_Cfg(**dict_cfg["DPV"])
+    return DPV_Cfg(**dict_cfg)
 
 
 def load_cfg_exp(
@@ -91,7 +91,7 @@ def load_cfg(
 ) -> RunCfg:
     return RunCfg (
         # potentiostat = load_cfg_pot(dict_cfg["potentiostat"])
-        CV = load_CV_cfg(dict_cfg)
+        CV = load_CV_cfg(dict_cfg["CV"])
         , DPV = load_DPV_cfg(dict_cfg["DPV"])
         , experiment = load_cfg_exp(dict_cfg["experiment"])
     )
@@ -101,8 +101,8 @@ def load_ref_cfg(
 ) -> RefCfg:
     return RefCfg (
         # potentiostat = load_cfg_pot(dict_cfg["potentiostat"])
-        CV = load_CV_cfg(dict_cfg)
-        , DPV = load_DPV_cfg(dict_cfg)
+        CV = load_CV_cfg(dict_cfg["CV"])
+        , DPV = load_DPV_cfg(dict_cfg["DPV"])
 )
 
 
