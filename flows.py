@@ -106,7 +106,7 @@ def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
         "project": "SDL_Test",
         "collection": "Potentialstat_Result", 
         "experiment_type": "CV",
-        "parameters": Jobfile,
+        "parameters": jobdict,
         "folder_structure": ["project","collection"],
         "description": "CV test result for SDL experiment",
     }
