@@ -1,4 +1,5 @@
 from feature_implementations.potentiostat import Potentiostat
+from proc_echem import plot_cdpv, plot_cv
 from prefect import task, flow
 import numpy as np
 
@@ -121,4 +122,23 @@ def run_CDPV(cfg,
     return dpv_result
 
 
+@task
+def plot_cv(cv_data, file_name: str):
+    plot_cv(cv_data, file_name)
+    print("CV plot saved as ", file_name)
+
+@task
+def plot_cdpv(dpv_data, 
+              file_name: str,
+              do_fit: bool,
+              log_file: str = None,
+              decay_ms=500,
+              pulse_ms=50):
+    plot_cdpv(dpv_data=dpv_data, 
+              file_name=file_name, 
+              do_fit=do_fit, 
+              log_file=log_file,
+              decay_ms=decay_ms,
+              pulse_ms=pulse_ms)
+    print("CDPV plot saved as ", file_name)
 

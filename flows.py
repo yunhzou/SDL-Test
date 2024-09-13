@@ -2,7 +2,7 @@ from feature_implementations.utils  import (load_cfg, load_ref_cfg, load_CV_cfg,
                                             load_cfg_exp, proc_dpv, 
                                             dpv_phasing, fit_gauss, 
                                             gaussian)
-from feature_implementations.exposed_feature import run_CV, run_CDPV
+from feature_implementations.exposed_feature import run_CV, run_CDPV, plot_cdpv, plot_cv
 from acp_wrapper import *
 from prefect import task, flow, serve
 import numpy as np
@@ -10,6 +10,7 @@ import json
 import time 
 from LabMind import FileObject, KnowledgeObject, nosql_service,cloud_service
 from LabMind.Utils import upload
+import os as os 
 
 @flow(log_prints=True)
 def RunExp(Jobfile):
@@ -99,20 +100,38 @@ def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     cfg = load_CV_cfg(jobdict["CV"])#TODO: need keys for others  cfg process, this should be fixed for loaders in the future, this also co changed the cfg.CV.xxx which CV are modified for testing purpose 
     CV_0: np.ndarray = run_CV(cfg, serial_port=serial_port)
     time.sleep(2)
+    file_name = f"{name}_CV_poten_1.csv"
     np.savetxt(f"{name}_CV_poten_1.csv", CV_0, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
     print("RunExperiment CV Completed on port ",serial_port)
+    plot_name = f"{name}_CV_poten_1.png"
+    plot_cv(CV_0, plot_name)
+    # upload and save the file 
     csv_metadata = {
-        "filename": f"{name}_CV_poten_1.csv", 
+        "filename": file_name, 
         "project": "SDL_Test",
         "collection": "Potentialstat_Result", 
         "experiment_type": "CV",
+        "data_type": "csv",
         "parameters": jobdict,
         "folder_structure": ["project","collection"],
         "description": "CV test result for SDL experiment",
     }
-    file = FileObject(f"{name}_CV_poten_1.csv", csv_metadata, cloud_service, nosql_service, embedding = False)
+    file = FileObject(file_name, csv_metadata, cloud_service, nosql_service, embedding = False)
     upload(file)
-
+    file.delete_local_file()
+    plot_metadata = {
+        "filename": plot_name,
+        "project": "SDL_Test",
+        "collection": "Potentialstat_Result",
+        "experiment_type": "CV",
+        "data_type": "png",
+        "parameters": jobdict,
+        "folder_structure": ["project","collection"],
+        "description": "CV test plot for SDL experiment",
+    }
+    plot_file = FileObject(plot_name, plot_metadata, cloud_service, nosql_service, embedding = False)
+    upload(plot_file)
+    plot_file.delete_local_file()
 
 
 
