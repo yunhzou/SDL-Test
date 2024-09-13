@@ -12,14 +12,14 @@
     "num_mixings": 1
   },
   "DPV": {
-    "start_V": 0.8,
+    "min_V": 0,
     "pulse_V": 0.01,
     "step_V": 0.005,
-    "end_V": 0,
+    "max_V": 0.8,
     "potential_hold_ms": 100,
     "pulse_hold_ms": 100,
-    "cycle": 1,
-    "sample_hz": 250
+    "sample_hz": 250,
+    "cycles": 1
   },
   "CV": {
     "v_min": -0.2,
