@@ -8,6 +8,8 @@ from prefect import task, flow, serve
 import numpy as np
 import json
 import time 
+from LabMind import FileObject, KnowledgeObject, nosql_service,cloud_service
+from LabMind.Utils import upload
 
 @flow(log_prints=True)
 def RunExp(Jobfile):
@@ -99,6 +101,20 @@ def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     time.sleep(2)
     np.savetxt(f"{name}_CV_poten_1.csv", CV_0, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
     print("RunExperiment CV Completed on port ",serial_port)
+    csv_metadata = {
+        "filename": f"{name}_CV_poten_1.csv", 
+        "project": "SDL_Test",
+        "collection": "Potentialstat_Result", 
+        "experiment_type": "CV",
+        "parameters": Jobfile,
+        "folder_structure": ["project","collection"],
+        "description": "CV test result for SDL experiment",
+    }
+    file = FileObject(f"{name}_CV_poten_1.csv", csv_metadata, cloud_service, nosql_service, embedding = False)
+    upload(file)
+
+
+
 
 @flow(log_prints=True)
 def single_DPV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
