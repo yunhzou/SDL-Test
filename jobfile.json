@@ -1,1 +1,33 @@
-{"name": "test potentiostat job", "experiment": {"metal": {"position": 3, "volume": 0.1}, "ligand": {"position": 1, "volume": 0.3}, "num_mixings": 1}, "DPV": {"start_V": 0.8, "pulse_V": 0.01, "step_V": 0.005, "end_V": 0, "potential_hold_ms": 100, "pulse_hold_ms": 100, "cycle": 1, "sample_hz": 250}, "CV": {"v_min": -0.2, "v_max": 0.8, "cycles": 1, "mV_s": 200, "step_hz": 250, "start_V": null, "last_V": null}}
+{
+  "name": "test potentiostat job",
+  "experiment": {
+    "metal": {
+      "position": 3,
+      "volume": 0.1
+    },
+    "ligand": {
+      "position": 1,
+      "volume": 0.3
+    },
+    "num_mixings": 1
+  },
+  "DPV": {
+    "start_V": 0.8,
+    "pulse_V": 0.01,
+    "step_V": 0.005,
+    "end_V": 0,
+    "potential_hold_ms": 100,
+    "pulse_hold_ms": 100,
+    "cycle": 1,
+    "sample_hz": 250
+  },
+  "CV": {
+    "v_min": -0.2,
+    "v_max": 0.8,
+    "cycles": 1,
+    "mV_s": 200,
+    "step_hz": 250,
+    "start_V": null,
+    "last_V": null
+  }
+}
