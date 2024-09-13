@@ -35,9 +35,8 @@ class DPV_Cfg(NamedTuple):
     pulse_V: float
     step_V: float
     max_V: float
-    potential_hold_ms: int
-    pulse_hold_ms: int
     voltage_hold_s: float
+    pulse_hold_ms: int
     cycles: int
     sample_hz: int
 
@@ -72,7 +71,7 @@ def load_CV_cfg(
 
 def load_DPV_cfg(
     dict_cfg: dict
-) -> CV_Cfg:
+) -> DPV_Cfg:
     return DPV_Cfg(**dict_cfg)
 
 
