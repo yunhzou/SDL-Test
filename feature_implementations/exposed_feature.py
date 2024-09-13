@@ -1,5 +1,5 @@
 from feature_implementations.potentiostat import Potentiostat
-from proc_echem import plot_cdpv, plot_cv
+from feature_implementations.proc_echem import plot_cdpv, plot_cv
 from prefect import task, flow
 import numpy as np
 
