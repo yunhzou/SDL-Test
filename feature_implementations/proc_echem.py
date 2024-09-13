@@ -65,38 +65,3 @@ def dpv_phasing(data):
     phase_up = data[data[:, 2] >= 0]
     phase_down = data[data[:, 2] < 0]
     return phase_up, phase_down
-
-def plot_cv(cv_data, file_name: str):
-    cv_raw = cv_data[:, 1:3]
-    cv_avg = avg_vi(cv_raw, 16, 1)
-    plt.scatter(cv_avg[:, 0], cv_avg[:, 1], s=1)
-    plt.savefig(f"{file_name}")
-    plt.close()
-    return cv_avg
-
-def plot_cdpv(
-        dpv_data, 
-        file_name: str, 
-        do_fit: bool, 
-        log_file: str = None,
-        decay_ms=500,
-        pulse_ms=50
-        ):
-    dpv_proc = proc_dpv(dpv_data, decay_ms=decay_ms,pulse_ms=pulse_ms)
-    dpv_up, dpv_down = dpv_phasing(dpv_proc)
-    plt.scatter(dpv_up[:, 1], dpv_up[:, 2], c='b', s=5)
-    plt.scatter(dpv_down[:, 1], dpv_down[:, 2], c='g', s=5)
-    if do_fit:
-        gau_opt = fit_gauss(dpv_up)
-        with open(log_file, 'a') as f:
-            f.write(datetime.now().strftime("%Y-%m-%d_%H:%M:%S"))
-            for para in gau_opt:
-                f.write(f",{para:.3E}")
-            f.write("\n")
-        fit_curv = gaussian(dpv_up[:, 1], gau_opt[0], gau_opt[1], gau_opt[2], gau_opt[3])
-        plt.plot(dpv_up[:, 1], fit_curv, 'r-')
-    plt.savefig(f"{file_name}")
-    plt.close()
-    #if (gau_opt[1] < 0.2) or (gau_opt[1] > 0.3) or (abs(gau_opt[2] > 0.1) or (gau_opt[3] > 2e-7):
-    #    input("Bad electrode, check! Enter to continue")
-    return dpv_proc
