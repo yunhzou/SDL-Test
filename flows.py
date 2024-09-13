@@ -3,12 +3,11 @@ from feature_implementations.utils  import (load_cfg, load_ref_cfg, load_CV_cfg,
                                             dpv_phasing, fit_gauss, 
                                             gaussian)
 from feature_implementations.exposed_feature import run_CV, run_CDPV
-from prefect import task, flow
-from e_complex_robot import AutoComplex
+from acp_wrapper import *
+from prefect import task, flow, serve
 import numpy as np
 import json
-import time
-
+import time 
 
 @flow(log_prints=True)
 def RunExp(Jobfile):
@@ -70,52 +69,6 @@ def RunReference(Jobfile):
     print("RunReference Completed")
 
 @flow(log_prints=True)
-def create_autocomplex_client():
-    print("Creating AutoComplex client")
-    client =  AutoComplex()
-    print("AutoComplex client created")
-    return client
-
-
-@flow(log_prints=True)
-def run_complexation(client: AutoComplex, cfg):
-    print("Running complexation")
-    client.run_complexation(
-        num_metal=cfg.experiment.metal.position,
-        num_ligand=cfg.experiment.ligand.position,
-        quantity_metal=cfg.experiment.metal.volume,
-        quantity_ligand=cfg.experiment.ligand.volume,
-        quantity_buffer=cfg.experiment.quantity_buffer,
-        quantity_electrolyte=cfg.experiment.quantity_electrolyte,
-        mix_iteration=cfg.experiment.num_mixings
-        )
-    print("Complexation finished")
-
-@flow(log_prints=True)
-def rxn_to_echem(client, channel_ID:int):
-    client.rxn_to_echem(channel_ID)
-    print(f"Product transferred to electrochemical cell {channel_ID}")
-
-
-@flow(log_prints=True)
-def clean_echem(client, channel_ID:int):
-    print(f"Cleaning electrochemical cell {channel_ID}")
-    client.clean_echem(channel_ID)
-    print(f"Electrochemical cell {channel_ID} cleaned")
-
-@flow(log_prints=True)
-def clean_rxn(client):
-    print("Cleaning reaction vessel")
-    client.clean_rxn()
-    print("Reaction vessel cleaned")
-
-@flow(log_prints=True)
-def ref_to_echem(client):
-    print("Transferring reference to electrochemical cell")
-    client.ref_to_echem()
-    print("Reference transferred to electrochemical cell")
-
-@flow(log_prints=True)
 def process_dpv_reference(Jobfile: str, DPV_data: np.ndarray):
     """Used after DPV measurments to process the data and save it as a reference
         from dpv.csv to fitcurv.csv
@@ -134,3 +87,58 @@ def process_dpv_reference(Jobfile: str, DPV_data: np.ndarray):
         f.write(f"{name}_poten_2:\t"+str(gau_opt)+"\n")
     fit_curv = gaussian(dpv_up[:, 1], gau_opt[0], gau_opt[1], gau_opt[2], gau_opt[3])
     np.savetxt(f"references/{name}_poten2_fitcurv.csv", fit_curv, delimiter=',')
+
+
+@flow(log_prints=True)
+def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
+    with open(Jobfile, "r") as Jobfile:
+        jobdict = json.load(Jobfile)  # Use json.load() instead of json.loads() for reading from a file
+    name = jobdict["name"]
+    cfg = load_CV_cfg(jobdict["CV"])#TODO: need keys for others  cfg process, this should be fixed for loaders in the future, this also co changed the cfg.CV.xxx which CV are modified for testing purpose 
+    CV_0: np.ndarray = run_CV(cfg, serial_port=serial_port)
+    time.sleep(2)
+    np.savetxt(f"{name}_CV_poten_1.csv", CV_0, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
+    print("RunExperiment CV Completed on port ",serial_port)
+
+@flow(log_prints=True)
+def single_DPV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
+    with open(Jobfile, "r") as Jobfile:
+        jobdict = json.load(Jobfile)  # Use json.load() instead of json.loads() for reading from a file
+    name = jobdict["name"]
+    cfg = load_DPV_cfg(jobdict)
+    DPV_0: np.ndarray = run_CDPV(cfg, serial_port=serial_port)
+    time.sleep(2)
+    np.savetxt(f"{name}_DPV_poten_1.csv", DPV_0, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
+    print("RunExperiment DPV Completed on port ",serial_port)
+
+
+@flow(log_prints=True)
+def single_clean_echem(chamber_id:int = 0):
+    autocomplex_client = create_autocomplex_client()
+    clean_echem(autocomplex_client, chamber_id)
+
+
+@flow(log_prints=True)
+def single_clean_rxn():
+    autocomplex_client = create_autocomplex_client()
+    clean_rxn(autocomplex_client)
+
+@flow(log_prints=True)
+def single_complexation(Jobfile:str):
+    autocomplex_client = create_autocomplex_client()
+    jobdict = json.loads(Jobfile)
+    cfg = load_cfg(jobdict)
+    run_complexation(autocomplex_client, cfg)
+
+
+if __name__ == "__main__":
+    single_cv_deploy = single_CV.to_deployment(name="single_CV_test")
+    single_dpv_deploy = single_DPV.to_deployment(name="single_DPV_test")
+    single_clean_echem_deploy = single_clean_echem.to_deployment(name="single_clean_echem_test")
+    single_clean_rxn_deploy = single_clean_rxn.to_deployment(name="single_clean_rxn_test")
+    single_complexation_deploy = single_complexation.to_deployment(name="single_complexation_test")
+    serve(single_cv_deploy,
+          single_dpv_deploy,
+          single_clean_echem_deploy,
+          single_clean_rxn_deploy,
+          single_complexation_deploy)

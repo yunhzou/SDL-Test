@@ -1,3 +1,3 @@
-from deploy_functions import single_CV
+from flows import single_CV
 
 single_CV()

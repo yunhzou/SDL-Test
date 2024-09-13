@@ -2,7 +2,8 @@ from feature_implementations.potentiostat import Potentiostat
 from prefect import task, flow
 import numpy as np
 
-#@flow(log_prints=True)
+
+@task
 def init_poten(serial_port: str,
                baudrate: int,
                device_ID: int):
@@ -11,7 +12,8 @@ def init_poten(serial_port: str,
     print("Connected to potentiostat serial_port: {}, baudrate: {}, device_ID: {}".format(serial_port, baudrate, device_ID))
     return POTEN
 
-@flow#(log_prints=True)
+
+@task
 def perform_CV(POTEN: Potentiostat,
                v_min: float,
                v_max: float,
@@ -45,7 +47,8 @@ def perform_CV(POTEN: Potentiostat,
     print("CV performed with parameters v_min: {}, v_max: {}, cycles: {}, mV_s: {}, step_hz: {}, start_V: {}, last_V: {}".format(v_min, v_max, cycles, mV_s, step_hz, start_V, last_V))
     return rtn
 
-@flow(log_prints=True)
+
+@task
 def perform_CDPV(POTEN: Potentiostat,
                  min_V: float,
                  pulse_V: float,
@@ -68,19 +71,25 @@ def perform_CDPV(POTEN: Potentiostat,
     return rtn
 
 
-#@flow(log_prints=True)
+
+@task
 def terminate_poten(POTEN: Potentiostat):
     POTEN.write_switch(False)
     POTEN.disconnect()
     print("Disconnected from potentiostat")
 
-@task#(log_prints=True)
+
+@task
 def run_CV(cfg,
            serial_port:str = "/dev/poten_1"):
+    """
+    Wrap the CV experiment in a flow
+    """    
     POTEN_port = init_poten(serial_port=serial_port,
                                baudrate=115200, 
                                device_ID=2)
     print(POTEN_port)
+    #TODO: modify to cfg.cv.v_min, right now look like this because the cfg is not loaded properly (historical issues)
     cv_result = perform_CV(POTEN_port, 
                            cfg.v_min, 
                            cfg.v_max, 
@@ -92,7 +101,7 @@ def run_CV(cfg,
     terminate_poten(POTEN_port)
     return cv_result
 
-@flow(log_prints=True)
+@task
 def run_CDPV(cfg,
              serial_port:str = "/dev/poten_1"):
     POTEN_port = init_poten(serial_port=serial_port,
