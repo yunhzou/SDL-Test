@@ -13,7 +13,7 @@ import time
 def RunExp(Jobfile):
     autocomplex_client = create_autocomplex_client()
     with open("jobfile.json", "r") as Jobfile:
-        jobdict = json.load(Jobfile)  # Use json.load() instead of json.loads() for reading from a file
+        jobdict = json.load(Jobfile)  
     name = jobdict["name"]
     cfg = load_cfg(jobdict)
     run_complexation(autocomplex_client, cfg)
@@ -46,7 +46,7 @@ def Rinse():
 def RunReference(Jobfile):
     autocomplex_client = create_autocomplex_client()
     with open("jobfile.json", "r") as Jobfile:
-        jobdict = json.load(Jobfile)  # Use json.load() instead of json.loads() for reading from a file
+        jobdict = json.load(Jobfile) 
     name = jobdict["name"]
     cfg = load_ref_cfg(jobdict)
     run_complexation(autocomplex_client, cfg)
@@ -92,7 +92,7 @@ def process_dpv_reference(Jobfile: str, DPV_data: np.ndarray):
 @flow(log_prints=True)
 def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     with open(Jobfile, "r") as Jobfile:
-        jobdict = json.load(Jobfile)  # Use json.load() instead of json.loads() for reading from a file
+        jobdict = json.load(Jobfile)  
     name = jobdict["name"]
     cfg = load_CV_cfg(jobdict["CV"])#TODO: need keys for others  cfg process, this should be fixed for loaders in the future, this also co changed the cfg.CV.xxx which CV are modified for testing purpose 
     CV_0: np.ndarray = run_CV(cfg, serial_port=serial_port)
@@ -103,9 +103,9 @@ def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
 @flow(log_prints=True)
 def single_DPV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     with open(Jobfile, "r") as Jobfile:
-        jobdict = json.load(Jobfile)  # Use json.load() instead of json.loads() for reading from a file
+        jobdict = json.load(Jobfile) 
     name = jobdict["name"]
-    cfg = load_DPV_cfg(jobdict)
+    cfg = load_DPV_cfg(jobdict["DPV"])
     DPV_0: np.ndarray = run_CDPV(cfg, serial_port=serial_port)
     time.sleep(2)
     np.savetxt(f"{name}_DPV_poten_1.csv", DPV_0, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")

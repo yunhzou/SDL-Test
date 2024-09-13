@@ -108,13 +108,13 @@ def run_CDPV(cfg,
                                baudrate=115200, 
                                device_ID=2)
     dpv_result = perform_CDPV(POTEN_port, 
-                              cfg.DPV.min_V, 
-                              cfg.DPV.pulse_V, 
-                              cfg.DPV.step_V, 
-                              cfg.DPV.max_V, 
-                              cfg.DPV.potential_hold_ms, 
-                              cfg.DPV.pulse_hold_ms, 
-                              cfg.DPV.voltage_hold_s)
+                              cfg.min_V, 
+                              cfg.pulse_V, 
+                              cfg.step_V, 
+                              cfg.max_V, 
+                              cfg.potential_hold_ms, 
+                              cfg.pulse_hold_ms, 
+                              cfg.voltage_hold_s)
     terminate_poten(POTEN_port)
     return dpv_result
 
