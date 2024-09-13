@@ -57,8 +57,7 @@ def perform_CDPV(POTEN: Potentiostat,
                  potential_hold_ms: float,
                  pulse_hold_ms: float,
                  voltage_hold_s: float,
-                 cycles: int,
-                 filename: str)->np.ndarray:
+                 cycles: int)->np.ndarray:
     rtn = POTEN.perform_CDPV(
         min_V=float(min_V)
         , pulse_V=float(pulse_V)
@@ -114,9 +113,10 @@ def run_CDPV(cfg,
                               cfg.pulse_V, 
                               cfg.step_V, 
                               cfg.max_V, 
-                              cfg.potential_hold_ms, 
+                              cfg.voltage_hold_s, 
                               cfg.pulse_hold_ms, 
-                              cfg.voltage_hold_s)
+                              cfg.voltage_hold_s,
+                              cfg.cycles)
     terminate_poten(POTEN_port)
     return dpv_result
 
