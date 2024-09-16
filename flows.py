@@ -119,6 +119,7 @@ def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     file = FileObject(file_name, csv_metadata, cloud_service, nosql_service, embedding = False)
     upload(file)
     file.delete_local_file()
+    
     plot_metadata = {
         "filename": plot_name,
         "project": "SDL_Test",
