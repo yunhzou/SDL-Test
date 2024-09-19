@@ -2,11 +2,11 @@
   "name": "test potentiostat job",
   "experiment": {
     "metal": {
-      "position": 4,
+      "position": 7,
       "volume": 0.5
     },
     "ligand": {
-      "position": 7,
+      "position": 9,
       "volume": 0.3
     },
     "quantity_buffer":0.4,
