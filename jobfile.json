@@ -3,12 +3,14 @@
   "experiment": {
     "metal": {
       "position": 3,
-      "volume": 0.1
+      "volume": 0.5
     },
     "ligand": {
-      "position": 1,
+      "position": 6,
       "volume": 0.3
     },
+    "quantity_buffer":0.4,
+    "quantity_electrolyte":0.9,
     "num_mixings": 1
   },
   "DPV": {
