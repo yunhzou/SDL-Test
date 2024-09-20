@@ -324,7 +324,8 @@ def single_complexation(Jobfile:str):
         KeyError: If required keys are missing in the job configuration.
     """
     autocomplex_client = create_autocomplex_client()
-    jobdict = json.loads(Jobfile)
+    with open("jobfile.json", "r") as Jobfile:
+        jobdict = json.load(Jobfile)
     cfg = load_cfg(jobdict)
     run_complexation(autocomplex_client, cfg)
 
