@@ -147,8 +147,8 @@ def RunReference(Jobfile):
     time.sleep(2)
     np.savetxt(f"{name}_DPV_poten_1_ref.csv", DPV_ref_1, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
     np.savetxt(f"{name}_DPV_poten_2_ref.csv", DPV_ref_2, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
-    process_dpv_reference(Jobfile, DPV_ref_1)
-    process_dpv_reference(Jobfile, DPV_ref_2)
+    process_dpv_reference(name, DPV_ref_1)
+    process_dpv_reference(name, DPV_ref_2)
 
     CV_ref_1: np.ndarray = run_CV(cfg, serial_port="/dev/poten_1")
     CV_ref_2: np.ndarray = run_CV(cfg, serial_port="/dev/poten_2")
@@ -159,12 +159,12 @@ def RunReference(Jobfile):
     Rinse()
     print("RunReference Completed")
 
-@flow(log_prints=True)
-def process_dpv_reference(Jobfile: str, DPV_data: np.ndarray):
+@task(log_prints=True)
+def process_dpv_reference(name: str, DPV_data: np.ndarray):
     """
     Processes DPV (Differential Pulse Voltammetry) reference data based on the provided job file and DPV data.
     Args:
-        Jobfile (str): Path to the job file in JSON format containing job-specific parameters.
+        name (str): name of the experiments
         DPV_data (np.ndarray): Numpy array containing the DPV data to be processed.
     Raises:
         FileNotFoundError: If the job file cannot be found.
@@ -178,12 +178,8 @@ def process_dpv_reference(Jobfile: str, DPV_data: np.ndarray):
         - The fitted curve data is saved to another CSV file.
     
     Example:
-    >>> process_dpv_reference("jobfile.json", DPV_data)
+    >>> process_dpv_reference(name, DPV_data)
     """
-
-    with open("jobfile.json", "r") as Jobfile:
-        jobdict = json.load(Jobfile)  # Use json.load() instead of json.loads() for reading from a file
-    name = jobdict["name"]
     dpv = proc_dpv(DPV_data, decay_ms =500, pulse_ms = 50, pulse_from_end=4,decay_from_end=20)
     np.savetxt(f'references/{name}_poten2.csv', dpv[:, 0:5], delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d")
     dpv_up, dpv_down = dpv_phasing(dpv)
