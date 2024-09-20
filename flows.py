@@ -13,7 +13,7 @@ from LabMind.Utils import upload
 import os as os 
 
 @flow(log_prints=True)
-def RunExp(Jobfile: str):
+def RunExp(Jobfile: str="jobfile.json"):
     """An experimental pipeline 
         complexation -> CDPV -> CV -> Rinse
 
@@ -21,7 +21,41 @@ def RunExp(Jobfile: str):
         Jobfile (str): Path to the jobfile.json. jobfile is a configuration file that contains the parameters for the experiment.
 
     Typically Jobfile looks like this:
-        xxxx TODO:add example of jobfile here
+        {
+        "name": "test potentiostat job",
+        "experiment": {
+            "metal": {
+            "position": 7,
+            "volume": 0.5
+            },
+            "ligand": {
+            "position": 9,
+            "volume": 0.3
+            },
+            "quantity_buffer":0.4,
+            "quantity_electrolyte":0.9,
+            "num_mixings": 1
+        },
+        "DPV": {
+            "min_V": 0,
+            "pulse_V": 0.01,
+            "step_V": 0.005,
+            "max_V": 0.8,
+            "voltage_hold_s": 0.1,
+            "pulse_hold_ms": 100,
+            "sample_hz": 250,
+            "cycles": 1
+        },
+        "CV": {
+            "v_min": -0.2,
+            "v_max": 0.8,
+            "cycles": 1,
+            "mV_s": 200,
+            "step_hz": 250,
+            "start_V": null,
+            "last_V": null
+            }
+        }
 
           
     Exanmple: 

@@ -2,5 +2,6 @@ from flows import single_CV, single_DPV, Rinse, single_complexation
 
 #single_CV()
 #single_DPV()
-#Rinse()
+Rinse()
 single_complexation("jobfile.json")
+Rinse()
