@@ -67,24 +67,15 @@ def RunExp(Jobfile: str="jobfile.json"):
     autocomplex_client = create_autocomplex_client()
     with open("jobfile.json", "r") as Jobfile:
         jobdict = json.load(Jobfile)  
-    name = jobdict["name"]
     cfg = load_cfg(jobdict)
     run_complexation(autocomplex_client, cfg)
     rxn_to_echem(autocomplex_client, 0)
     rxn_to_echem(autocomplex_client, 1)
-    DPV_0: np.ndarray = run_CDPV(cfg, serial_port="/dev/poten_1")
-    DPV_1: np.ndarray = run_CDPV(cfg, serial_port="/dev/poten_2")
-    time.sleep(2)
-    np.savetxt(f"{name}_DPV_poten_1.csv", DPV_0, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
-    np.savetxt(f"{name}_DPV_poten_2.csv", DPV_1, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
-
-    CV_0: np.ndarray = run_CV(cfg, serial_port="/dev/poten_1")
-    CV_1: np.ndarray = run_CV(cfg, serial_port="/dev/poten_2")
-    time.sleep(2)
-    np.savetxt(f"{name}_CV_poten_1.csv", CV_0, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
-    np.savetxt(f"{name}_CV_poten_2.csv", CV_1, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
+    single_DPV(Jobfile,serial_port="/dev/poten_1")
+    single_CV(Jobfile,serial_port="/dev/poten_1")
     Rinse()
     print("RunExperiment Completed")
+    return "Completed"
 
 
 @flow(log_prints=True)
@@ -111,6 +102,7 @@ def Rinse():
     clean_echem(autocomplex_client, 1)
     clean_rxn(autocomplex_client)
     print("Rinse Completed")
+    return "Completed"
 
 @flow(log_prints=True)
 def RunReference(Jobfile):
@@ -142,22 +134,13 @@ def RunReference(Jobfile):
     cfg = load_ref_cfg(jobdict)
     run_complexation(autocomplex_client, cfg)
     ref_to_echem(autocomplex_client)
-    DPV_ref_1: np.ndarray = run_CDPV(cfg, serial_port="/dev/poten_1")
-    DPV_ref_2: np.ndarray = run_CDPV(cfg, serial_port="/dev/poten_2")
-    time.sleep(2)
-    np.savetxt(f"{name}_DPV_poten_1_ref.csv", DPV_ref_1, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
-    np.savetxt(f"{name}_DPV_poten_2_ref.csv", DPV_ref_2, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
+    DPV_ref_1:np.ndarray = single_DPV(Jobfile,serial_port="/dev/poten_1")
     process_dpv_reference(name, DPV_ref_1)
-    process_dpv_reference(name, DPV_ref_2)
 
-    CV_ref_1: np.ndarray = run_CV(cfg, serial_port="/dev/poten_1")
-    CV_ref_2: np.ndarray = run_CV(cfg, serial_port="/dev/poten_2")
-    time.sleep(2)
-    np.savetxt(f"{name}_CV_poten_1_ref.csv", CV_ref_1, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
-    np.savetxt(f"{name}_CV_poten_2_ref.csv", CV_ref_2, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
-
+    CV_ref_1: np.ndarray = single_CV(Jobfile,serial_port="/dev/poten_1")
     Rinse()
     print("RunReference Completed")
+    return "Completed"
 
 @task(log_prints=True)
 def process_dpv_reference(name: str, DPV_data: np.ndarray):
@@ -188,6 +171,17 @@ def process_dpv_reference(name: str, DPV_data: np.ndarray):
         f.write(f"{name}_poten_2:\t"+str(gau_opt)+"\n")
     fit_curv = gaussian(dpv_up[:, 1], gau_opt[0], gau_opt[1], gau_opt[2], gau_opt[3])
     np.savetxt(f"references/{name}_poten2_fitcurv.csv", fit_curv, delimiter=',')
+    reference_csv_metadata = {
+        "filename": f"{name}_poten2_fitcurv.csv",
+        "project": "SDL_Test",
+        "collection": "Potentialstat_Reference",
+        "experiment_type": "DPV",
+        "data_type": "csv",
+        "folder_structure": ["project","collection"],
+    }
+    file = FileObject(f"{name}_poten2_fitcurv.csv", reference_csv_metadata, cloud_service, nosql_service, embedding = False)
+    upload(file)
+    file.delete_local_file()
 
 
 @flow(log_prints=True)
@@ -225,9 +219,8 @@ def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     with open(Jobfile, "r") as Jobfile:
         jobdict = json.load(Jobfile)  
     name = jobdict["name"]
-    cfg = load_CV_cfg(jobdict["CV"])#TODO: need keys for others  cfg process, this should be fixed for loaders in the future, this also co changed the cfg.CV.xxx which CV are modified for testing purpose 
+    cfg = load_cfg(jobdict)
     CV_0: np.ndarray = run_CV(cfg, serial_port=serial_port)
-    time.sleep(2)
     file_name = f"{name}_CV_poten_1.csv"
     np.savetxt(f"{name}_CV_poten_1.csv", CV_0, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
     print("RunExperiment CV Completed on port ",serial_port)
@@ -261,6 +254,7 @@ def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     plot_file = FileObject(plot_name, plot_metadata, cloud_service, nosql_service, embedding = False)
     upload(plot_file)
     plot_file.delete_local_file()
+    return CV_0
 
 
 
@@ -269,9 +263,8 @@ def single_DPV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     with open(Jobfile, "r") as Jobfile:
         jobdict = json.load(Jobfile)  
     name = jobdict["name"]
-    cfg = load_DPV_cfg(jobdict["DPV"])
+    cfg = load_cfg(jobdict)
     DPV_0: np.ndarray = run_CDPV(cfg, serial_port=serial_port)
-    time.sleep(2)
     file_name = f"{name}_DPV_poten_1.csv"
     np.savetxt(file_name, DPV_0, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
     print("RunExperiment DPV Completed on port ", serial_port)
@@ -306,6 +299,7 @@ def single_DPV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     plot_file = FileObject(plot_name, plot_metadata, cloud_service, nosql_service, embedding = False)
     upload(plot_file)
     plot_file.delete_local_file()
+    return DPV_0
 
 
 @flow(log_prints=True)

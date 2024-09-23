@@ -93,13 +93,13 @@ def run_CV(cfg,
     print(POTEN_port)
     #TODO: modify to cfg.cv.v_min, right now look like this because the cfg is not loaded properly (historical issues)
     cv_result = perform_CV(POTEN_port, 
-                           cfg.v_min, 
-                           cfg.v_max, 
-                           cfg.cycles, 
-                           cfg.mV_s, 
-                           cfg.step_hz, 
-                           cfg.start_V,
-                           cfg.last_V)
+                           cfg.CV.v_min, 
+                           cfg.CV.v_max, 
+                           cfg.CV.cycles, 
+                           cfg.CV.mV_s, 
+                           cfg.CV.step_hz, 
+                           cfg.CV.start_V,
+                           cfg.CV.last_V)
     terminate_poten(POTEN_port)
     return cv_result
 
@@ -110,14 +110,14 @@ def run_CDPV(cfg,
                                baudrate=115200, 
                                device_ID=2)
     dpv_result = perform_CDPV(POTEN_port, 
-                              cfg.min_V, 
-                              cfg.pulse_V, 
-                              cfg.step_V, 
-                              cfg.max_V, 
-                              cfg.voltage_hold_s, 
-                              cfg.pulse_hold_ms, 
-                              cfg.voltage_hold_s,
-                              cfg.cycles)
+                              cfg.DPV.min_V, 
+                              cfg.DPV.pulse_V, 
+                              cfg.DPV.step_V, 
+                              cfg.DPV.max_V, 
+                              cfg.DPV.voltage_hold_s, 
+                              cfg.DPV.pulse_hold_ms, 
+                              cfg.DPV.voltage_hold_s,
+                              cfg.DPV.cycles)
     terminate_poten(POTEN_port)
     return dpv_result
 
