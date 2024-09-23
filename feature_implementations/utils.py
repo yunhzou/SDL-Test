@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 from pathlib import Path
 from .potentiostat import Potentiostat
 import time
@@ -48,15 +48,14 @@ class ExpCfg(NamedTuple):
     metal: Compound
 
 class RunCfg(NamedTuple):
-    # potentiostat: PotCfg
-    experiment: ExpCfg
-    CV: CV_Cfg
-    DPV: DPV_Cfg
+    experiment: Optional[ExpCfg] = None
+    CV: Optional[CV_Cfg] = None
+    DPV: Optional[DPV_Cfg] = None
 
 class RefCfg(NamedTuple):
     # potentiostat: PotCfg
-    CV: CV_Cfg
-    DPV: DPV_Cfg
+    CV: Optional[CV_Cfg] = None
+    DPV: Optional[DPV_Cfg] = None
 
 
 def load_cfg_pot(
@@ -88,23 +87,33 @@ def load_cfg_exp(
     )
 
 def load_cfg(
-    dict_cfg: str
+    dict_cfg: dict
 ) -> RunCfg:
-    return RunCfg (
-        # potentiostat = load_cfg_pot(dict_cfg["potentiostat"])
+    if "experiment" not in dict_cfg:
+        experiment = None
+        Warning("No experiment configuration found")
+    else:
+        experiment = load_cfg_exp(dict_cfg["experiment"])
+    if "CV" not in dict_cfg:
+        CV=None
+    else:
         CV = load_CV_cfg(dict_cfg["CV"])
-        , DPV = load_DPV_cfg(dict_cfg["DPV"])
-        , experiment = load_cfg_exp(dict_cfg["experiment"])
-    )
+    if "DPV" not in dict_cfg:
+        dict_cfg["DPV"] = None
+        Warning("No experiment configuration found")
+    else:
+        DPV = load_DPV_cfg(dict_cfg["DPV"])
+    
+
+    return RunCfg (CV, DPV, experiment)
 
 def load_ref_cfg(
     dict_cfg: str
 ) -> RefCfg:
     return RefCfg (
-        # potentiostat = load_cfg_pot(dict_cfg["potentiostat"])
         CV = load_CV_cfg(dict_cfg["CV"])
         , DPV = load_DPV_cfg(dict_cfg["DPV"])
-)
+    )
 
 
 from pathlib import Path
