@@ -105,7 +105,7 @@ def load_cfg(
         DPV = load_DPV_cfg(dict_cfg["DPV"])
     
 
-    return RunCfg (CV, DPV, experiment)
+    return RunCfg (experiment, CV, DPV)
 
 def load_ref_cfg(
     dict_cfg: str
