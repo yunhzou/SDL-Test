@@ -9,4 +9,5 @@ from flows import single_CV, single_DPV, Rinse, single_complexation, RunExp
 #Rinse()
 #RunExp("jobfile.json")  
 #Rinse()
-single_DPV("jobfile.json")
+#single_DPV("jobfile.json")
+single_CV("jobfile.json")

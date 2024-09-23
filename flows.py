@@ -186,35 +186,34 @@ def process_dpv_reference(name: str, DPV_data: np.ndarray):
 
 @flow(log_prints=True)
 def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
-    def single_CV(Jobfile: str = "jobfile.json", serial_port="/dev/poten_1"):
-        """
-        Executes a single cyclic voltammetry (CV) experiment based on the provided job configuration file.
-        Args:
-            Jobfile (str): Path to the job configuration file in JSON format. Default is "jobfile.json".
-            serial_port (str): Serial port to be used for the experiment. Default is "/dev/poten_1".
-        Raises:
-            FileNotFoundError: If the job configuration file is not found.
-            json.JSONDecodeError: If the job configuration file is not a valid JSON.
-            KeyError: If required keys are missing in the job configuration.
-        Returns:
-            None
-        This function performs the following steps:
-            1. Reads the job configuration from the specified JSON file.
-            2. Loads the CV configuration using the `load_CV_cfg` function.
-            3. Runs the CV experiment using the `run_CV` function.
-            4. Saves the CV data to a CSV file.
-            5. Plots the CV data and saves the plot as a PNG file.
-            6. Uploads the CSV and PNG files to a cloud service.
-            7. Deletes the local copies of the CSV and PNG files after uploading.
-        Note:
-            The function assumes the existence of several external functions and classes:
-            - `load_CV_cfg`: Function to load CV configuration.
-            - `run_CV`: Function to run the CV experiment.
-            - `plot_cv`: Function to plot the CV data.
-            - `FileObject`: Class to handle file metadata and uploading.
-            - `upload`: Function to upload files to a cloud service.
-            - `cloud_service` and `nosql_service`: Instances of services used for uploading and metadata storage.
-        """
+    """
+    Executes a single cyclic voltammetry (CV) experiment based on the provided job configuration file.
+    Args:
+        Jobfile (str): Path to the job configuration file in JSON format. Default is "jobfile.json".
+        serial_port (str): Serial port to be used for the experiment. Default is "/dev/poten_1".
+    Raises:
+        FileNotFoundError: If the job configuration file is not found.
+        json.JSONDecodeError: If the job configuration file is not a valid JSON.
+        KeyError: If required keys are missing in the job configuration.
+    Returns:
+        None
+    This function performs the following steps:
+        1. Reads the job configuration from the specified JSON file.
+        2. Loads the CV configuration using the `load_CV_cfg` function.
+        3. Runs the CV experiment using the `run_CV` function.
+        4. Saves the CV data to a CSV file.
+        5. Plots the CV data and saves the plot as a PNG file.
+        6. Uploads the CSV and PNG files to a cloud service.
+        7. Deletes the local copies of the CSV and PNG files after uploading.
+    Note:
+        The function assumes the existence of several external functions and classes:
+        - `load_CV_cfg`: Function to load CV configuration.
+        - `run_CV`: Function to run the CV experiment.
+        - `plot_cv`: Function to plot the CV data.
+        - `FileObject`: Class to handle file metadata and uploading.
+        - `upload`: Function to upload files to a cloud service.
+        - `cloud_service` and `nosql_service`: Instances of services used for uploading and metadata storage.
+    """
 
     with open(Jobfile, "r") as Jobfile:
         jobdict = json.load(Jobfile)  
