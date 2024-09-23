@@ -89,16 +89,16 @@ def load_cfg_exp(
 def load_cfg(
     dict_cfg: dict
 ) -> RunCfg:
-    if "experiment" not in dict_cfg:
+    if "experiment" not in dict_cfg.keys():
         experiment = None
         Warning("No experiment configuration found")
     else:
         experiment = load_cfg_exp(dict_cfg["experiment"])
-    if "CV" not in dict_cfg:
+    if "CV" not in dict_cfg.keys():
         CV=None
     else:
         CV = load_CV_cfg(dict_cfg["CV"])
-    if "DPV" not in dict_cfg:
+    if "DPV" not in dict_cfg.keys():
         dict_cfg["DPV"] = None
         Warning("No experiment configuration found")
     else:

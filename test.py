@@ -5,6 +5,7 @@ from flows import single_CV, single_DPV, Rinse, single_complexation, RunExp
 # Rinse()
 # single_complexation("jobfile.json")
 # Rinse()
-
-RunExp("jobfile.json")  
+single_complexation()
+#Rinse()
+#RunExp("jobfile.json")  
 #Rinse()
