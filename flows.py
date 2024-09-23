@@ -269,7 +269,7 @@ def single_DPV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     np.savetxt(file_name, DPV_0, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
     print("RunExperiment DPV Completed on port ", serial_port)
     plot_name = f"{name}_DPV_poten_1.png"
-    plot_cdpv(DPV_0, plot_name)
+    plot_cdpv(DPV_0, plot_name, do_fit=True)
     
     # upload and save the file 
     csv_metadata = {
