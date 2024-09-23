@@ -65,8 +65,8 @@ def RunExp(Jobfile: str="jobfile.json"):
     >>> run_deployments(..) TODO: add example here 
     """
     autocomplex_client = create_autocomplex_client()
-    with open("jobfile.json", "r") as Jobfile:
-        jobdict = json.load(Jobfile)  
+    with open("jobfile.json", "r") as jf:
+        jobdict = json.load(jf)  
     cfg = load_cfg(jobdict)
     run_complexation(autocomplex_client, cfg)
     rxn_to_echem(autocomplex_client, 0)
@@ -128,8 +128,8 @@ def RunReference(Jobfile):
     """
 
     autocomplex_client = create_autocomplex_client()
-    with open("jobfile.json", "r") as Jobfile:
-        jobdict = json.load(Jobfile) 
+    with open("jobfile.json", "r") as jf:
+        jobdict = json.load(jf) 
     name = jobdict["name"]
     cfg = load_ref_cfg(jobdict)
     run_complexation(autocomplex_client, cfg)
@@ -215,8 +215,8 @@ def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
         - `cloud_service` and `nosql_service`: Instances of services used for uploading and metadata storage.
     """
 
-    with open(Jobfile, "r") as Jobfile:
-        jobdict = json.load(Jobfile)  
+    with open(Jobfile, "r") as jf:
+        jobdict = json.load(jf)  
     name = jobdict["name"]
     cfg = load_cfg(jobdict)
     CV_0: np.ndarray = run_CV(cfg, serial_port=serial_port)
@@ -259,8 +259,8 @@ def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
 
 @flow(log_prints=True)
 def single_DPV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
-    with open(Jobfile, "r") as Jobfile:
-        jobdict = json.load(Jobfile)  
+    with open(Jobfile, "r") as jf:
+        jobdict = json.load(jf)  
     name = jobdict["name"]
     cfg = load_cfg(jobdict)
     DPV_0: np.ndarray = run_CDPV(cfg, serial_port=serial_port)
