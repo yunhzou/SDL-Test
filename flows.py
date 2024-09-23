@@ -268,8 +268,8 @@ def single_DPV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     file_name = f"{name}_DPV_poten_1.csv"
     np.savetxt(file_name, DPV_0, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
     print("RunExperiment DPV Completed on port ", serial_port)
-    plot_name = f"{name}_DPV_poten_1.png"
-    plot_cdpv(DPV_0, plot_name, do_fit=True)
+    #plot_name = f"{name}_DPV_poten_1.png"
+    #plot_cdpv(DPV_0, plot_name, do_fit=True)
     
     # upload and save the file 
     csv_metadata = {
@@ -286,19 +286,19 @@ def single_DPV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     upload(file)
     file.delete_local_file()
     
-    plot_metadata = {
-        "filename": plot_name,
-        "project": "SDL_Test",
-        "collection": "Potentialstat_Result",
-        "experiment_type": "DPV",
-        "data_type": "png",
-        "parameters": jobdict,
-        "folder_structure": ["project","collection"],
-        "description": "DPV test plot for SDL experiment",
-    }
-    plot_file = FileObject(plot_name, plot_metadata, cloud_service, nosql_service, embedding = False)
-    upload(plot_file)
-    plot_file.delete_local_file()
+    # plot_metadata = {
+    #     "filename": plot_name,
+    #     "project": "SDL_Test",
+    #     "collection": "Potentialstat_Result",
+    #     "experiment_type": "DPV",
+    #     "data_type": "png",
+    #     "parameters": jobdict,
+    #     "folder_structure": ["project","collection"],
+    #     "description": "DPV test plot for SDL experiment",
+    # }
+    # plot_file = FileObject(plot_name, plot_metadata, cloud_service, nosql_service, embedding = False)
+    # upload(plot_file)
+    # plot_file.delete_local_file()
     return DPV_0
 
 
