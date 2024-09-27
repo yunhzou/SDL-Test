@@ -2,9 +2,10 @@ from feature_implementations.potentiostat import Potentiostat
 from feature_implementations.proc_echem import *
 from prefect import task, flow
 import numpy as np
+from LabMind import FileObject, KnowledgeObject, nosql_service,cloud_service
+from LabMind.Utils import upload
 
 
-@task
 def init_poten(serial_port: str,
                baudrate: int,
                device_ID: int):
@@ -14,7 +15,6 @@ def init_poten(serial_port: str,
     return POTEN
 
 
-@task
 def perform_CV(POTEN: Potentiostat,
                v_min: float,
                v_max: float,
@@ -49,7 +49,6 @@ def perform_CV(POTEN: Potentiostat,
     return rtn
 
 
-@task
 def perform_CDPV(POTEN: Potentiostat,
                  min_V: float,
                  pulse_V: float,
@@ -73,8 +72,6 @@ def perform_CDPV(POTEN: Potentiostat,
     return rtn
 
 
-
-@task
 def terminate_poten(POTEN: Potentiostat):
     POTEN.write_switch(False)
     POTEN.disconnect()
@@ -90,8 +87,6 @@ def run_CV(cfg,
     POTEN_port = init_poten(serial_port=serial_port,
                                baudrate=115200, 
                                device_ID=2)
-    print(POTEN_port)
-    #TODO: modify to cfg.cv.v_min, right now look like this because the cfg is not loaded properly (historical issues)
     cv_result = perform_CV(POTEN_port, 
                            cfg.CV.v_min, 
                            cfg.CV.v_max, 
@@ -159,3 +154,44 @@ def plot_cdpv(
     #    input("Bad electrode, check! Enter to continue")
     return dpv_proc
 
+
+@task(log_prints=True)
+def process_dpv_reference(name: str, DPV_data: np.ndarray):
+    """
+    Processes DPV (Differential Pulse Voltammetry) reference data based on the provided job file and DPV data.
+    Args:
+        name (str): name of the experiments
+        DPV_data (np.ndarray): Numpy array containing the DPV data to be processed.
+    Raises:
+        FileNotFoundError: If the job file cannot be found.
+        json.JSONDecodeError: If the job file is not a valid JSON.
+    Notes:
+        - The function reads the job file to extract the job name.
+        - It processes the DPV data using the `proc_dpv` function with specific parameters.
+        - The processed DPV data is saved to a CSV file named based on the job name.
+        - The DPV data is then phased and fitted to a Gaussian curve.
+        - The Gaussian optimization results are logged to a file.
+        - The fitted curve data is saved to another CSV file.
+    
+    Example:
+    >>> process_dpv_reference(name, DPV_data)
+    """
+    dpv = proc_dpv(DPV_data, decay_ms =500, pulse_ms = 50, pulse_from_end=4,decay_from_end=20)
+    np.savetxt(f'references/{name}_poten2.csv', dpv[:, 0:5], delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d")
+    dpv_up, dpv_down = dpv_phasing(dpv)
+    gau_opt = fit_gauss(dpv_up)
+    with open(f"gau_opt.log", "a") as f:
+        f.write(f"{name}_poten_2:\t"+str(gau_opt)+"\n")
+    fit_curv = gaussian(dpv_up[:, 1], gau_opt[0], gau_opt[1], gau_opt[2], gau_opt[3])
+    np.savetxt(f"references/{name}_poten2_fitcurv.csv", fit_curv, delimiter=',')
+    reference_csv_metadata = {
+        "filename": f"{name}_poten2_fitcurv.csv",
+        "project": "SDL_Test",
+        "collection": "Potentialstat_Reference",
+        "experiment_type": "DPV",
+        "data_type": "csv",
+        "folder_structure": ["project","collection"],
+    }
+    file = FileObject(f"references/{name}_poten2_fitcurv.csv", reference_csv_metadata, cloud_service, nosql_service, embedding = False)
+    upload(file)
+    file.delete_local_file()

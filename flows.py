@@ -2,15 +2,18 @@ from feature_implementations.utils  import (load_cfg, load_ref_cfg, load_CV_cfg,
                                             load_cfg_exp, proc_dpv, 
                                             dpv_phasing, fit_gauss, 
                                             gaussian)
-from feature_implementations.exposed_feature import run_CV, run_CDPV, plot_cdpv, plot_cv
+from feature_implementations.exposed_feature import run_CV, run_CDPV, plot_cdpv, plot_cv, process_dpv_reference
 from acp_wrapper import *
 from prefect import task, flow, serve
+from prefect.deployments import run_deployment
+from prefect.futures import wait
 import numpy as np
 import json
 import time 
 from LabMind import FileObject, KnowledgeObject, nosql_service,cloud_service
 from LabMind.Utils import upload
 import os as os 
+import asyncio
 
 @flow(log_prints=True)
 def RunExp(Jobfile: str="jobfile.json"):
@@ -142,46 +145,86 @@ def RunReference(Jobfile):
     print("RunReference Completed")
     return "Completed"
 
-@task(log_prints=True)
-def process_dpv_reference(name: str, DPV_data: np.ndarray):
-    """
-    Processes DPV (Differential Pulse Voltammetry) reference data based on the provided job file and DPV data.
+
+
+@flow(log_prints=True)
+def demo(Jobfile: str="jobfile.json"):
+    """An experimental pipeline demo
+
     Args:
-        name (str): name of the experiments
-        DPV_data (np.ndarray): Numpy array containing the DPV data to be processed.
-    Raises:
-        FileNotFoundError: If the job file cannot be found.
-        json.JSONDecodeError: If the job file is not a valid JSON.
-    Notes:
-        - The function reads the job file to extract the job name.
-        - It processes the DPV data using the `proc_dpv` function with specific parameters.
-        - The processed DPV data is saved to a CSV file named based on the job name.
-        - The DPV data is then phased and fitted to a Gaussian curve.
-        - The Gaussian optimization results are logged to a file.
-        - The fitted curve data is saved to another CSV file.
-    
-    Example:
-    >>> process_dpv_reference(name, DPV_data)
+        Jobfile (str): Path to the jobfile.json. jobfile is a configuration file that contains the parameters for the experiment.
+
+    Typically Jobfile looks like this:
+        {
+        "name": "test potentiostat job",
+        "experiment": {
+            "metal": {
+            "position": 7,
+            "volume": 0.5
+            },
+            "ligand": {
+            "position": 9,
+            "volume": 0.3
+            },
+            "quantity_buffer":0.4,
+            "quantity_electrolyte":0.9,
+            "num_mixings": 1
+        },
+        "DPV": {
+            "min_V": 0,
+            "pulse_V": 0.01,
+            "step_V": 0.005,
+            "max_V": 0.8,
+            "voltage_hold_s": 0.1,
+            "pulse_hold_ms": 100,
+            "sample_hz": 250,
+            "cycles": 1
+        },
+        "CV": {
+            "v_min": -0.2,
+            "v_max": 0.8,
+            "cycles": 1,
+            "mV_s": 200,
+            "step_hz": 250,
+            "start_V": null,
+            "last_V": null
+            }
+        }
+
+          
+    Exanmple: 
+    >>> demo("jobfile.json")
+        RunExperiment Completed
+    Prefect Deployment Example:
+    >>> run_deployments(..) TODO: add example here 
     """
-    dpv = proc_dpv(DPV_data, decay_ms =500, pulse_ms = 50, pulse_from_end=4,decay_from_end=20)
-    np.savetxt(f'references/{name}_poten2.csv', dpv[:, 0:5], delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d")
-    dpv_up, dpv_down = dpv_phasing(dpv)
-    gau_opt = fit_gauss(dpv_up)
-    with open(f"gau_opt.log", "a") as f:
-        f.write(f"{name}_poten_2:\t"+str(gau_opt)+"\n")
-    fit_curv = gaussian(dpv_up[:, 1], gau_opt[0], gau_opt[1], gau_opt[2], gau_opt[3])
-    np.savetxt(f"references/{name}_poten2_fitcurv.csv", fit_curv, delimiter=',')
-    reference_csv_metadata = {
-        "filename": f"{name}_poten2_fitcurv.csv",
-        "project": "SDL_Test",
-        "collection": "Potentialstat_Reference",
-        "experiment_type": "DPV",
-        "data_type": "csv",
-        "folder_structure": ["project","collection"],
-    }
-    file = FileObject(f"{name}_poten2_fitcurv.csv", reference_csv_metadata, cloud_service, nosql_service, embedding = False)
-    upload(file)
-    file.delete_local_file()
+    autocomplex_client = create_autocomplex_client()
+    with open("jobfile.json", "r") as jf:
+        jobdict = json.load(jf)  
+    cfg = load_cfg(jobdict)
+
+    def main_thread():
+        run_complexation(autocomplex_client, cfg) # 1
+        rxn_to_echem(autocomplex_client, 0) # 1
+    main_thread()
+
+    async def async_block_1():
+        await run_deployment(name="single_DPV\single_DPV",parameters={"Jobfile":Jobfile,"serial_port":"/dev/poten_1"})#single_DPV(Jobfile,serial_port="/dev/poten_1") # this is equivalent to opening a new thread
+        await run_deployment(name="single-CV\single_CV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_1"})#single_CV(Jobfile,serial_port="/dev/poten_1")    
+
+    async def async_block_2():
+        single_clean_rxn.submit()  # async block 2
+        run_complexation(autocomplex_client, cfg) # async block 2
+        rxn_to_echem(autocomplex_client, 1) # async block 2
+        await run_deployment(name="single_DPV\single_DPV",parameters={"Jobfile":Jobfile,"serial_port":"/dev/poten_2"}) #await single_DPV(Jobfile,serial_port="/dev/poten_2") # async block 2
+        await run_deployment(name="single-CV\single_CV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_2"}) #await single_CV(Jobfile,serial_port="/dev/poten_2") # async block 2
+
+    asyncio.gather(async_block_1(), async_block_2())
+
+    Rinse()
+    print("RunExperiment Completed")
+    return "Completed"
+# ------------------------ BASIC FLOWS ------------------------ #
 
 
 @flow(log_prints=True)
@@ -190,7 +233,7 @@ def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     Executes a single cyclic voltammetry (CV) experiment based on the provided job configuration file.
     Args:
         Jobfile (str): Path to the job configuration file in JSON format. Default is "jobfile.json".
-        serial_port (str): Serial port to be used for the experiment. Default is "/dev/poten_1".
+        serial_port (str): Serial port to be used for the experiment. Default is "/dev/poten_1", te second channel would be "/dev/poten_2"
     Raises:
         FileNotFoundError: If the job configuration file is not found.
         json.JSONDecodeError: If the job configuration file is not a valid JSON.
@@ -222,7 +265,10 @@ def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     CV_0: np.ndarray = run_CV(cfg, serial_port=serial_port)
     file_name = f"{name}_CV_poten_1.csv"
     np.savetxt(f"{name}_CV_poten_1.csv", CV_0, delimiter=',', fmt="%.2E,%.2E,%.2E,%d,%d,%d")
+    
+    
     print("RunExperiment CV Completed on port ",serial_port)
+    
     plot_name = f"{name}_CV_poten_1.png"
     plot_cv(CV_0, plot_name)
     # upload and save the file 
@@ -360,8 +406,10 @@ if __name__ == "__main__":
     single_clean_echem_deploy = single_clean_echem.to_deployment(name="single_clean_echem_test")
     single_clean_rxn_deploy = single_clean_rxn.to_deployment(name="single_clean_rxn_test")
     single_complexation_deploy = single_complexation.to_deployment(name="single_complexation_test")
+    rinse_deploy = Rinse.to_deployment(name="rinse_test")
     serve(single_cv_deploy,
           single_dpv_deploy,
           single_clean_echem_deploy,
           single_clean_rxn_deploy,
-          single_complexation_deploy)
+          single_complexation_deploy,
+          rinse_deploy)
