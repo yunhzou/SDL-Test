@@ -210,11 +210,12 @@ def demo(Jobfile: str="jobfile.json"):
     main_thread()
 
     # Block 1: DPV and CV for one potentiostat
+    @task
     def block_1():
         run_deployment(name="single_DPV/single_DPV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_1"})
         run_deployment(name="single_CV/single_CV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_1"})
 
-    # Block 2: DPV and CV for another potentiostat
+    @task
     def block_2():
         single_clean_rxn()
         run_complexation(autocomplex_client, cfg)
@@ -222,13 +223,15 @@ def demo(Jobfile: str="jobfile.json"):
         run_deployment(name="single_DPV/single_DPV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_2"})
         run_deployment(name="single_CV/single_CV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_2"})
 
-    # Execute block_1 and block_2 in parallel using ThreadPoolExecutor
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        future_1 = executor.submit(block_1)
-        future_2 = executor.submit(block_2)
+    blocks = [block_1.submit(), block_2.submit()]
+    wait(blocks)
+    # # Execute block_1 and block_2 in parallel using ThreadPoolExecutor
+    # with concurrent.futures.ThreadPoolExecutor() as executor:
+    #     future_1 = executor.submit(block_1)
+    #     future_2 = executor.submit(block_2)
 
-        # Wait for both blocks to finish
-        concurrent.futures.wait([future_1, future_2])
+    #     # Wait for both blocks to finish
+    #     concurrent.futures.wait([future_1, future_2])
 
     Rinse()
     print("RunExperiment Completed")
