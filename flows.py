@@ -401,15 +401,11 @@ def single_complexation(Jobfile:str):
 
 
 if __name__ == "__main__":
-    single_cv_deploy = single_CV.to_deployment(name="single_CV_test")
-    single_dpv_deploy = single_DPV.to_deployment(name="single_DPV_test")
-    single_clean_echem_deploy = single_clean_echem.to_deployment(name="single_clean_echem_test")
-    single_clean_rxn_deploy = single_clean_rxn.to_deployment(name="single_clean_rxn_test")
-    single_complexation_deploy = single_complexation.to_deployment(name="single_complexation_test")
+    single_cv_deploy = single_CV.to_deployment(name="single_CV")
+    single_dpv_deploy = single_DPV.to_deployment(name="single_DPV")
     rinse_deploy = Rinse.to_deployment(name="rinse_test")
+    demo_deploy = demo.to_deployment(name="demo_test")  
     serve(single_cv_deploy,
           single_dpv_deploy,
-          single_clean_echem_deploy,
-          single_clean_rxn_deploy,
-          single_complexation_deploy,
-          rinse_deploy)
+          rinse_deploy,
+          demo_deploy)
