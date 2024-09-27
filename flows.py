@@ -14,6 +14,7 @@ from LabMind import FileObject, KnowledgeObject, nosql_service,cloud_service
 from LabMind.Utils import upload
 import os as os 
 import asyncio
+import concurrent.futures
 
 @flow(log_prints=True)
 def RunExp(Jobfile: str="jobfile.json"):
@@ -208,18 +209,26 @@ def demo(Jobfile: str="jobfile.json"):
         rxn_to_echem(autocomplex_client, 0) # 1
     main_thread()
 
-    async def async_block_1():
-        await run_deployment(name="single_DPV\single_DPV",parameters={"Jobfile":Jobfile,"serial_port":"/dev/poten_1"})#single_DPV(Jobfile,serial_port="/dev/poten_1") # this is equivalent to opening a new thread
-        await run_deployment(name="single-CV\single_CV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_1"})#single_CV(Jobfile,serial_port="/dev/poten_1")    
+    # Block 1: DPV and CV for one potentiostat
+    def block_1():
+        run_deployment(name="single_DPV/single_DPV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_1"})
+        run_deployment(name="single_CV/single_CV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_1"})
 
-    async def async_block_2():
-        single_clean_rxn.submit()  # async block 2
-        run_complexation(autocomplex_client, cfg) # async block 2
-        rxn_to_echem(autocomplex_client, 1) # async block 2
-        await run_deployment(name="single_DPV\single_DPV",parameters={"Jobfile":Jobfile,"serial_port":"/dev/poten_2"}) #await single_DPV(Jobfile,serial_port="/dev/poten_2") # async block 2
-        await run_deployment(name="single-CV\single_CV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_2"}) #await single_CV(Jobfile,serial_port="/dev/poten_2") # async block 2
+    # Block 2: DPV and CV for another potentiostat
+    def block_2():
+        single_clean_rxn()
+        run_complexation(autocomplex_client, cfg)
+        rxn_to_echem(autocomplex_client, 1)
+        run_deployment(name="single_DPV/single_DPV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_2"})
+        run_deployment(name="single_CV/single_CV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_2"})
 
-    asyncio.gather(async_block_1(), async_block_2())
+    # Execute block_1 and block_2 in parallel using ThreadPoolExecutor
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future_1 = executor.submit(block_1)
+        future_2 = executor.submit(block_2)
+
+        # Wait for both blocks to finish
+        concurrent.futures.wait([future_1, future_2])
 
     Rinse()
     print("RunExperiment Completed")
