@@ -296,7 +296,7 @@ def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     }
     file = FileObject(file_name, csv_metadata, cloud_service, nosql_service, embedding = False)
     upload(file)
-    file.delete_local_file()
+    #file.delete_local_file()
     
     plot_metadata = {
         "filename": plot_name,
@@ -310,7 +310,7 @@ def single_CV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     }
     plot_file = FileObject(plot_name, plot_metadata, cloud_service, nosql_service, embedding = False)
     upload(plot_file)
-    plot_file.delete_local_file()
+    #plot_file.delete_local_file()
     return CV_0
 
 
@@ -341,7 +341,7 @@ def single_DPV(Jobfile:str = "jobfile.json",serial_port="/dev/poten_1"):
     }
     file = FileObject(file_name, csv_metadata, cloud_service, nosql_service, embedding = False)
     upload(file)
-    file.delete_local_file()
+    #file.delete_local_file()
     
     # plot_metadata = {
     #     "filename": plot_name,
