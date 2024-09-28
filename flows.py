@@ -212,16 +212,16 @@ def demo(Jobfile: str="jobfile.json"):
     # Block 1: DPV and CV for one potentiostat
     @task
     def block_1():
-        run_deployment(name="single_DPV/single_DPV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_1"})
-        run_deployment(name="single_CV/single_CV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_1"})
+        run_deployment(name="single-DPV/single_DPV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_1"})
+        run_deployment(name="single-CV/single_CV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_1"})
 
     @task
     def block_2():
         single_clean_rxn()
         run_complexation(autocomplex_client, cfg)
         rxn_to_echem(autocomplex_client, 1)
-        run_deployment(name="single_DPV/single_DPV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_2"})
-        run_deployment(name="single_CV/single_CV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_2"})
+        run_deployment(name="single-DPV/single_DPV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_2"})
+        run_deployment(name="single-CV/single_CV", parameters={"Jobfile": Jobfile, "serial_port": "/dev/poten_2"})
 
     blocks = [block_1.submit(), block_2.submit()]
     wait(blocks)
